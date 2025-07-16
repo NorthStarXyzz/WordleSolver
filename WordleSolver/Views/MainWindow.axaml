@@ -1,0 +1,121 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:WordleSolver.ViewModels"
+        xmlns:local="using:WordleSolver.Converters"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="WordleSolver.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        MinHeight="450"
+        MinWidth="580"
+        MaxHeight="450"
+        MaxWidth="580"
+        Title="WordleSolver">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
+    <Window.Resources>
+        <local:ColorIndexToBrushConverter x:Key="ColorIndexToBrushConverter"/>
+    </Window.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" 
+          Margin="20">
+        
+        <StackPanel Grid.Row="0" 
+                    HorizontalAlignment="Center" 
+                    Margin="0,0,0,20">
+            <TextBlock Text="Welcome to WordleSolver!" 
+                       FontSize="24" 
+                       HorizontalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,10">
+            </StackPanel>
+        </StackPanel>
+        
+        <Grid Grid.Row="1" 
+              ColumnDefinitions="Auto,*" 
+              Margin="0,0,0,20">
+            <StackPanel Grid.Column="0"
+                        Spacing="10"
+                        Width="150">
+                <Button Content="{Binding SolveButtonText}"
+                        Command="{Binding StartSolvingCommand}"
+                        HorizontalAlignment="Stretch"/>
+                <Button Content="Restart"
+                        Command="{Binding RestartCommand}"
+                        IsEnabled="{Binding IsGameStarted}"
+                        HorizontalAlignment="Stretch"/>
+                <TextBlock Text="Word Length"
+                           Margin="0,10,0,5"/>
+                <ComboBox ItemsSource="{Binding AvailableWordLengths}"
+                          SelectedItem="{Binding WordLength}"
+                          IsEnabled="{Binding !IsGameStarted}"
+                          HorizontalAlignment="Stretch"
+                          Height="32"
+                          VerticalContentAlignment="Center"
+                          Margin="0,0,0,10"/>
+                <TextBlock Text="Dictionary"
+                           Margin="0,10,0,5"/>
+                <ComboBox ItemsSource="{Binding AvailableDictionaries}"
+                          SelectedItem="{Binding SelectedDictionary}"
+                          IsEnabled="{Binding !IsGameStarted}"
+                          HorizontalAlignment="Stretch"
+                          Height="32"
+                          VerticalContentAlignment="Center"
+                          Margin="0,0,0,10"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1"
+                        Margin="20,0,0,0">
+                <TextBlock Text="{Binding CurrentRound, StringFormat='Round: {0}/6'}"
+                           FontSize="16"
+                           Margin="0,0,0,10"/>
+                <Grid ColumnDefinitions="220,Auto">
+                    <TextBox Grid.Column="0"
+                             Text="{Binding InputWord, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="{Binding WordLength}"
+                             Height="32"
+                             VerticalContentAlignment="Center"
+                             IsEnabled="{Binding IsGameStarted}"
+                             Margin="0,0,10,20"/>
+                    <Button Grid.Column="1"
+                            Content="Confirm"
+                            Height="32"
+                            Command="{Binding ConfirmCommand}"
+                            Margin="0,0,0,20"/>
+                </Grid>
+                
+                <ItemsControl ItemsSource="{Binding Cells}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Background="{Binding ColorIndex, Converter={StaticResource ColorIndexToBrushConverter}}"
+                                    Width="40" Height="40" Margin="2"
+                                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CycleColorCommand}"
+                                    CommandParameter="{Binding}"
+                                    IsEnabled="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CanCycleColors}">
+                                <TextBlock Text="{Binding Letter}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="20"
+                                           Foreground="Black"/>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Grid>
+    </Grid>
+
+</Window>
